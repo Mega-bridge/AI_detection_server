@@ -2,17 +2,23 @@ import os
 from PIL import Image, ImageDraw
 from werkzeug.utils import secure_filename
 from ultralytics import YOLO
-from config import UPLOAD_FOLDER, STATIC_FOLDER, MODEL_PATH
+from config import MODEL_PATH
+from tempfile import NamedTemporaryFile
 
 # YOLO 모델 로드
 model = YOLO(MODEL_PATH)
 
 def save_image(file):
     """ 업로드된 이미지를 저장하고 파일 경로 반환 """
-    filename = secure_filename(file.filename)
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(filepath)
-    return filepath, filename
+    temp_file = NamedTemporaryFile(delete=False)  # 임시 파일 생성, 삭제하지 않도록 설정
+    temp_file.write(file)  # image_data를 임시 파일에 기록
+    temp_file.close() 
+    
+    filename = secure_filename(temp_file.name.split(os.sep)[-1])
+    if not filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+        filename += '.png'  # 확장자 없으면 .png 추가
+
+    return temp_file.name, filename
 
 def load_image(filepath):
     """ 이미지 파일 PIL 이미지 객체로 반환 """

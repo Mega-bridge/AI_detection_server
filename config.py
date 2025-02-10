@@ -4,5 +4,6 @@ STATIC_FOLDER = "static"
 ALLOWED_EXTENSIONS = {"jpg", "png"}
 
 # Celery 설정
-CELERY_BROKER_URL = "pyamqp://guest@localhost//"  # RabbitMQ
-CELERY_RESULT_BACKEND = "redis://localhost:6379/0"  # 결과 저장소
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+CALLBACK_URL = "https://eo59dhnudv8k3ri.m.pipedream.net" # 백엔드 서버 주소로 추후 수정 http://4.230.16.220:8080/ai/advace-diagnosis(확인필요)

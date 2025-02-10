@@ -1,13 +1,14 @@
 from flask import Flask, request, jsonify, send_file
 import os
 from config import UPLOAD_FOLDER, STATIC_FOLDER
-from utils import save_image, load_image, draw_detections, run_detection
+from utils import save_image
+from tasks import process_image
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "Flask 서버 실행 중"
+    return "Flask 서버 실행 중!"
 
 @app.route("/detect", methods=["POST"])
 def detect():
@@ -19,40 +20,10 @@ def detect():
     if file.filename == "":
         return jsonify({"error": "No selected file"}), 400
 
-    # 이미지 저장 및 로드
-    filepath, filename = save_image(file)
-    image = load_image(filepath)
+    # Celery 비동기 작업 실행
+    process_image.delay(photo_uid, file.read())
 
-    # 객체 탐지
-    detections = run_detection(image)
-
-    # 탐지 결과 이미지 생성
-    output_image = draw_detections(image, detections)
-
-    # 결과 이미지 저장
-    output_path = os.path.join(STATIC_FOLDER, filename)
-    output_image.save(output_path)
-
-    # 필요한 값만 추출
-    results = []
-    for det in detections:
-        startX, startY, endX, endY = det["bbox"]  # bounding box 좌표
-        results.append({
-            "startX": startX,
-            "startY": startY,
-            "endX": endX,
-            "endY": endY
-        })
-    
-    # 결과 데이터 구성
-    response_data = {
-        "photoUid": photo_uid,
-        "cariesCount": len(results),
-        "positions": results,
-        "image_url": f"/result/{filename}"
-    }
-    
-    return jsonify(response_data)
+    return jsonify({"message": "Processing started", "photoUid": photo_uid})
 
 @app.route("/result/<filename>")
 def result(filename):
@@ -60,7 +31,7 @@ def result(filename):
 
 @app.route('/favicon.ico')
 def favicon():
-    return "", 204  # 204 No Content 응답
+    return "", 204
 
 if __name__ == "__main__":
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)

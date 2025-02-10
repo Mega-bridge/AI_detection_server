@@ -3,4 +3,7 @@ pillow
 werkzeug
 ultralytics
 opencv-python
-numpy
+flask
+celery
+redis
+requests
