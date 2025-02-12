@@ -28,13 +28,14 @@ def process_image(photo_uid, image_data):
     response_data = {
         "photoUid": photo_uid,
         "cariesCount": len(results),
-        "positions": results,
-        "image_url": f"/result/{filename}"
+        "positions": results
     }
 
-    # 요청을 보낸 서버로 결과 전달
+    # 이미지 파일을 multipart로 전송
     try:
-        requests.post(CALLBACK_URL, json=response_data, timeout=5)
+        with open(output_path, "rb") as image_file:
+            files = {"image": (filename, image_file, "image/png")}
+            requests.post(CALLBACK_URL, data=response_data, files=files, timeout=5)
     except requests.exceptions.RequestException as e:
         print(f"Error sending results: {e}")
 

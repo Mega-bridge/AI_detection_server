@@ -11,7 +11,7 @@ services:
 
     celery:
         build: .
-        command: celery -A tasks worker --loglevel=info
+        command: celery -A tasks worker --concurrency=6 --loglevel=info
         depends_on:
             - redis
         networks:
