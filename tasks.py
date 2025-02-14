@@ -1,5 +1,6 @@
 from celery import Celery
 import os
+import json
 import requests
 from config import STATIC_FOLDER, CALLBACK_URL, CELERY_BROKER_URL, CELERY_RESULT_BACKEND
 from utils import save_image, load_image, draw_detections, run_detection
@@ -26,16 +27,26 @@ def process_image(photo_uid, image_data):
                 "endX": det["bbox"][2], "endY": det["bbox"][3]} for det in detections]
 
     response_data = {
-        "photoUid": photo_uid,
-        "cariesCount": len(results),
-        "positions": results
+        "data": {
+            "photoUid": photo_uid,
+            "cariesCount": len(results),
+            "positions": results
+        }
     }
 
-    # 이미지 파일을 multipart로 전송
+    # 이미지 파일 전송
     try:
         with open(output_path, "rb") as image_file:
-            files = {"image": (filename, image_file, "image/png")}
-            requests.post(CALLBACK_URL, data=response_data, files=files, timeout=5)
+            files = {"files": (filename, image_file, "image/png")}
+            data = {"data": json.dumps(response_data)}
+            headers = {"Content-Type": "multipart/form-data"}
+            response = requests.post(CALLBACK_URL, 
+                                     data=data,
+                                     files=files, 
+                                     headers=headers,
+                                     timeout=5)
+            response.raise_for_status()
+
     except requests.exceptions.RequestException as e:
         print(f"Error sending results: {e}")
 

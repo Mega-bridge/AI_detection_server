@@ -34,7 +34,7 @@ def draw_detections(image, detections):
 
 def run_detection(image):
     """ YOLO 모델 실행해 탐지 결과 반환 (NMS 적용) """
-    results = model.predict(image, conf=0.2, iou=0.5)  # conf와 iou 값 조정 가능
+    results = model.predict(image, conf=0.35, iou=0.5)  # conf와 iou 값 조정 가능
     detections = []
     
     for result in results:
