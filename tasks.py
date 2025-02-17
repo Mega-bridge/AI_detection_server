@@ -31,28 +31,16 @@ def process_image(photo_uid, image_data):
         "cariesCount": len(results),
         "positions": results
     }
-    
-    json_data = json.dumps(response_data)  # JSON 문자열 변환
 
-    # 이미지 파일 포함 (JSON은 `data=`, 파일은 `files=`)
-    with open(output_path, "rb") as image_file:
-        files = {
-            "files": (filename, image_file, "image/png")  # 이미지 파일
-        }
-
-        json = {
-            "data": (json_data, "application/json")  # json 파일
-        }
-
-        try:
-            response = requests.post(
-                CALLBACK_URL,
-                data=json,  # JSON 데이터를 `data=`로 전송
-                files=files,  # 이미지 파일 포함
-                timeout=5
-            )
+    # 이미지 파일 전송
+    try:
+        with open(output_path, "rb") as image_file:
+            files = {"files": (filename, image_file, "image/png")}
+            data = {"photoUid": photo_uid, "cariesCount": len(results), "positions": json.dumps(results)}
+            response = requests.post(CALLBACK_URL, data=data, files=files, timeout=5)
             response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            print(f"Error sending results: {e}")
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error sending results: {e}")
 
     return response_data
