@@ -1,0 +1,20 @@
+# Python cache
+__pycache__/
+
+# 환경 파일
+.env
+venv/
+
+# Uploads
+uploads/
+
+# Auto-generated scripts
+stress_report*.sh
+stress_full_*.sh
+system_report*.sh
+
+# Auto-generated output
+stress_report_*.txt
+stress_full_*.txt
+system_report_*.txt
+
