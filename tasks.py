@@ -83,11 +83,15 @@ def process_image_v2(result_id, image_data, start_time, callback_url):
 
     filepath, filename = save_image(image_data)
     image = load_image(filepath)
+    
+    # 이미지 해상도 확인
+    width, height = image.size
+    print(f"[V2] Received image resolution: {width}x{height} pixels")
 
     # v2
     detections = run_detection_v2(image)
 
-    # filtered_detections = [det for det in detections if det["class"] != 3]
+    # filtered_detections = [det for det in detections if det["class"] != 3] Treated 라벨 제거
     filtered_detections = [det for det in detections if det["class"] != -1]
 
     output_image = draw_detections_v2(image, filtered_detections)

@@ -13,18 +13,11 @@ model2 = YOLO(MODEL_PATH_v2)
 
 
 # 클래스 ID - 이름 매핑
-#CLASS_NAMES = {
-#    0: "CROWN",
-#    1: "EXTRACTION",
-#    2: "INLAY_RESIN",
-#    3: "TREATED"
-#}
-
 CLASS_NAMES = {
-    0: "충치",
-    1: "충치",
-    2: "충치",
-    3: "치료 완료"
+    0: "CROWN",
+    1: "EXTRACTION",
+    2: "INLAY_RESIN",
+    3: "TREATED"
 }
 
 #CLASS_COLORS = {
@@ -89,7 +82,7 @@ def draw_detections_v2(image, detections):
     try:
         font = ImageFont.truetype(korean_fonts[0], font_size)
     except:
-        font_path = "/home/user/AI-server/AI_detection_server/PretendardVariable.ttf"  # 프로젝트 내 폰트 파일 위치
+        font_path = "/usr/share/fonts/truetype/custom/PretendardVariable.ttf"  # 프로젝트 내 폰트 파일 위치
         if os.path.exists(font_path):
             font = ImageFont.truetype(font_path, font_size)
         else:
@@ -101,7 +94,11 @@ def draw_detections_v2(image, detections):
         x1, y1, x2, y2 = det["bbox"]
         conf = det["confidence"]
         class_id = det["class"]
-        label_text = f"{CLASS_NAMES.get(class_id, 'Unknown')}, {conf:.2f}%"
+        #label_text = f"{CLASS_NAMES.get(class_id, 'Unknown')}, {conf:.2f}%"
+        if class_id == 3:
+            label_text = f"치료 완료, {conf:.2f}%"
+        else:
+            label_text = f"충치, {conf:.2f}%"
         color = CLASS_COLORS.get(class_id, "white")
 
         draw.rectangle([x1, y1, x2, y2], outline=color, width=thickness)
