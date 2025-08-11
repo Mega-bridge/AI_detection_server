@@ -13,17 +13,32 @@ model2 = YOLO(MODEL_PATH_v2)
 
 
 # 클래스 ID - 이름 매핑
+#CLASS_NAMES = {
+#    0: "CROWN",
+#    1: "EXTRACTION",
+#    2: "INLAY_RESIN",
+#    3: "TREATED"
+#}
+
 CLASS_NAMES = {
-    0: "CROWN",
-    1: "EXTRACTION",
-    2: "INLAY_RESIN",
-    3: "TREATED"
+    0: "충치",
+    1: "충치",
+    2: "충치",
+    3: "치료 완료"
 }
 
+#CLASS_COLORS = {
+#    0: "#4c22b2",
+#    1: "#ea1415",
+#    2: "#ffab00",
+#    3: "#ffffff"
+#}
+
+# 충치 색 통일
 CLASS_COLORS = {
-    0: "#4c22b2",
-    1: "#ea1415",
-    2: "#ffab00",
+    0: "#c50707",
+    1: "#c50707",
+    2: "#c50707",
     3: "#ffffff"
 }
 
@@ -63,14 +78,42 @@ def draw_detections_v2(image, detections):
     """ 탐지된 객체 박스를 이미지 위에 그림 """
     output_image = image.copy()
     draw = ImageDraw.Draw(output_image)
+
+    img_w, img_h = image.size
+    base_size = min(img_w, img_h)
+    font_size = max(20, int(base_size * 0.05))  # 크기 비율 조정
+
+    font_path = fm.findSystemFonts(fontpaths=None, fontext='ttf')
+    korean_fonts = [f for f in font_path if 'malgun' in f.lower() or 'gothic' in f.lower()]
+
+    try:
+        font = ImageFont.truetype(korean_fonts[0], font_size)
+    except:
+        font_path = "/home/user/AI-server/AI_detection_server/PretendardVariable.ttf"  # 프로젝트 내 폰트 파일 위치
+        if os.path.exists(font_path):
+            font = ImageFont.truetype(font_path, font_size)
+        else:
+            font = ImageFont.load_default()
     
+    thickness = max(3, int(base_size * 0.01)) 
+
     for det in detections:
         x1, y1, x2, y2 = det["bbox"]
+        conf = det["confidence"]
         class_id = det["class"]
+        label_text = f"{CLASS_NAMES.get(class_id, 'Unknown')}, {conf:.2f}%"
         color = CLASS_COLORS.get(class_id, "white")
-        thickness = 2
 
         draw.rectangle([x1, y1, x2, y2], outline=color, width=thickness)
+
+        text_size = draw.textbbox((x1, y1), label_text, font=font)
+        #text_height = text_size[3] - text_size[1]
+        text_x = x1 + thickness
+        text_y = y1 + thickness
+        # text_y = max(y1 - text_height, 0)
+
+        # draw.rectangle([text_size[0], text_y, text_size[2], text_y + text_height], fill=color)
+        draw.text((text_x, text_y), label_text, fill='white', font=font)
  
     return output_image
 

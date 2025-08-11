@@ -10,6 +10,7 @@ services:
             - app-network
               #cpus: "0.3" # 4기준 최대 0.5 CPU 사용
               #mem_limit: 1G # 8기준 최대 1GB 메모리 사용
+        restart: always
 
     celery:
         build: .
@@ -23,6 +24,7 @@ services:
             - CELERY_RESULT_BACKEND=redis://redis:6379/0
               #cpus: "1.6" # 최대 3.3 CPU 사용
               #mem_limit: 6G # 최대 6GB 메모리 사용
+        restart: always
 
     web:
         build: .
@@ -34,7 +36,8 @@ services:
         networks:
             - app-network
               #cpus: "0.1" # 최대 0.2 CPU 사용
-          #mem_limit: 1G # 최대 1GB 메모리 사용
+              #mem_limit: 1G # 최대 1GB 메모리 사용
+        restart: always
 
 networks:
     app-network:

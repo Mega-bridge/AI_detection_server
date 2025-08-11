@@ -87,7 +87,8 @@ def process_image_v2(result_id, image_data, start_time, callback_url):
     # v2
     detections = run_detection_v2(image)
 
-    filtered_detections = [det for det in detections if det["class"] != 3]
+    # filtered_detections = [det for det in detections if det["class"] != 3]
+    filtered_detections = [det for det in detections if det["class"] != -1]
 
     output_image = draw_detections_v2(image, filtered_detections)
     output_path = os.path.join(STATIC_FOLDER, filename)
